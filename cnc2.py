@@ -178,9 +178,44 @@ def cut_pocket(x,y,width,length,depth,stepdown,tool_diam,feedrate):
     gcode += safe_spot(1,tool_diam)
     return gcode
 
+#this function assumes the top center of the ramp is at 0,0
+def cut_slope(ramp_top_x,run,rise,ramp_width,stepdown,tool_diam,feedrate):
+    ramp_top_x = float(ramp_top_x)
+    run = float(run)
+    rise = float(rise)
+    ramp_width = float(ramp_width)
+    stepdown = float(stepdown)
+    tool_diam = float(tool_diam)
+    feedrate = float(feedrate)
+    ramp_top_z = 0.0
+    ramp_bottom_z = ramp_top_z + rise
+    m = rise/run
+    tool_overlap = .2#percentage tool overcuts old path
+    milling_stepover = tool_diam*(1.0-tool_overlap)
 
+    #boundrys xmin = top of ramp, x max = bottom + room for tool to finish
+    xmin = (ramp_top_z/m)+tool_diam/2#boundry for top of ramp.
+    xmax = (ramp_bottom_z/m)+tool_diam#bottom of ramp. need full tool diameter to finish.
+    ymin = -ramp_width/2
+    ymax = ramp_width/2
+    ypos = ymin
 
+    gcode = safe_spot(1,tool_diam)
+    gcode += "g1 x" + str(xmin) + " y" + str(ymin) + " f1000\n"
 
+    for zpos in range(ramp_top_z,ramp_bottom_z,stepdown):
+        xcontact = (zpos/m)+tool_diam/2#contact point at slope at z height
+        #lower head
+        gcode += "g1 z" + str(zpos) + " f300\n"
+        for xpos in range(xcontact,xmax,milling_stepover):
+            gcode += g1(xpos,ypos,zpos,feedrate)
+            ypos = switch_direction(ypos,ymin,ymax)
+            gcode += g1(xpos,ypos,zpos,feedrate)
+
+    gcode += "g1 z60 f1000\n"
+    gcode += safe_spot(1,tool_diam)
+
+    return gcode
 
 
 
@@ -199,4 +234,6 @@ def cut_pocket(x,y,width,length,depth,stepdown,tool_diam,feedrate):
 #print(cut_radius(radius,zstart,zstop,stepdown,xcorner,toolDiam,False))
 #cut_radius(radius, zstart,zstop,stepdown,xlength,tooldiam,mirrory?)
 
-print(cut_pocket(0,0,40,40,6,.2,6.35,300))
+#print(cut_pocket(0,0,40,40,6,.2,6.35,300))
+
+print(cut_slope(0.0,20,-10,30,.1,6.35,300))
