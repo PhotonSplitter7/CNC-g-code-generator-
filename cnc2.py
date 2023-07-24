@@ -106,6 +106,7 @@ def face(x,y,z,f,step_down,tool_diam, tool_overlap):
 
 #these functions are for cutting rounds
 
+#gets tangent intercept to radius. calculates stepdown to get tangent to radius.
 def get_circular_intercept(radius,vertical_intercept):
     y= vertical_intercept
     #if z touching top of arc, x axis is 0
@@ -115,6 +116,7 @@ def get_circular_intercept(radius,vertical_intercept):
         x = math.sqrt((radius*radius)-(vertical_intercept*vertical_intercept))
     return x#abs() maybe?
 
+#this code cuts a radius using stepdowns for resolution of curve. Radius center axis is X or Y
 def cut_radius(radius,z_start,z_stop,stepdown,x_length,tool_diam,mirror_y):#cuts radius facing toward user, with origin being center of radius, on right side of it
     radius = float(radius)
     z_stop = float(z_stop)
@@ -178,7 +180,7 @@ def cut_pocket(x,y,width,length,depth,stepdown,tool_diam,feedrate):
     gcode += safe_spot(1,tool_diam)
     return gcode
 
-#this function assumes the top center of the ramp is at 0,0
+#this function assumes the top center of the ramp is at 0,0    It cuts a slope using an endmill
 def cut_slope(ramp_top_x,run,rise,ramp_width,stepdown,tool_diam,feedrate):
     ramp_top_x = float(ramp_top_x)
     run = float(run)
@@ -218,6 +220,7 @@ def cut_slope(ramp_top_x,run,rise,ramp_width,stepdown,tool_diam,feedrate):
     return gcode
 
 
+#tests below: uncomment for testing>>>>
 
 #xcorner = input("enter radius center x coordinate: ")
 #ycorner = input("enter radius center y coordinate: ")
